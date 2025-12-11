@@ -15,7 +15,7 @@ This system leverages OpenAI's GPT models to intelligently process incoming supp
 ## Architecture Summary
 
 ```
-support-triage-agent/
+ooca-ticket-triage-agent/
 ├── src/triage_agent/
 │   ├── models/           # Pydantic data models
 │   │   ├── ticket.py     # Input ticket schema
@@ -58,7 +58,7 @@ support-triage-agent/
 
 ```bash
 # Clone or download the repository
-cd support-triage-agent
+cd ooca-ticket-triage-agent
 
 # Create virtual environment
 python -m venv venv
