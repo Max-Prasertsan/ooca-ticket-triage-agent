@@ -10,6 +10,8 @@ Usage:
 
 import json
 import sys
+import uuid
+from datetime import datetime, timezone
 from typing import Optional
 
 from rich.console import Console
@@ -24,6 +26,18 @@ from src.triage_agent.models.ticket import SupportTicket
 from src.triage_agent.models.triage_output import TriageOutput
 
 console = Console()
+
+# Ticket counter for auto-generating IDs
+_ticket_counter = 0
+
+
+def generate_ticket_id() -> str:
+    """Generate a unique ticket ID."""
+    global _ticket_counter
+    _ticket_counter += 1
+    timestamp = datetime.now().strftime("%Y%m%d")
+    short_uuid = uuid.uuid4().hex[:6].upper()
+    return f"T-{timestamp}-{short_uuid}"
 
 
 def display_welcome():
@@ -129,7 +143,10 @@ def get_ticket_interactive() -> Optional[SupportTicket]:
     console.print("\n[bold cyan]📝 Create New Ticket[/bold cyan]\n")
     
     try:
-        ticket_id = Prompt.ask("Ticket ID", default="T-001")
+        # Auto-generate ticket ID
+        ticket_id = generate_ticket_id()
+        console.print(f"[dim]Ticket ID: {ticket_id}[/dim]\n")
+        
         subject = Prompt.ask("Subject")
         
         if not subject.strip():
@@ -171,7 +188,8 @@ def get_ticket_interactive() -> Optional[SupportTicket]:
             customer_email=customer_email,
             customer_name=customer_name or None,
             customer_tier=customer_tier,
-            customer_region=customer_region or None
+            customer_region=customer_region or None,
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
         
     except KeyboardInterrupt:
@@ -187,6 +205,10 @@ def get_ticket_quick() -> Optional[SupportTicket]:
     console.print("\n[bold cyan]⚡ Quick Ticket Entry[/bold cyan]\n")
     
     try:
+        # Auto-generate ticket ID
+        ticket_id = generate_ticket_id()
+        console.print(f"[dim]Ticket ID: {ticket_id}[/dim]\n")
+        
         subject = Prompt.ask("Subject")
         if not subject.strip():
             console.print("[red]Subject cannot be empty[/red]")
@@ -216,11 +238,12 @@ def get_ticket_quick() -> Optional[SupportTicket]:
         )
         
         return SupportTicket(
-            ticket_id="T-QUICK",
+            ticket_id=ticket_id,
             subject=subject,
             body=body,
-            customer_email="quick@example.com",
-            customer_tier=customer_tier
+            customer_email="customer@example.com",
+            customer_tier=customer_tier,
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
         
     except KeyboardInterrupt:
