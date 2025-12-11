@@ -274,15 +274,15 @@ def get_tool_usage_prompt(available_tools: list[str]) -> str:
     """
     tools_list = ", ".join(available_tools)
     return f"""
-REMINDER: You have access to these tools: {tools_list}
+    REMINDER: You have access to these tools: {tools_list}
 
-You MUST use at least TWO tools before making your final triage decision.
-At minimum:
-1. Search the knowledge base for relevant articles
-2. Look up the customer's history
+    You MUST use at least TWO tools before making your final triage decision.
+    At minimum:
+    1. Search the knowledge base for relevant articles
+    2. Look up the customer's history
 
-If the ticket mentions service issues, also check region status.
-"""
+    If the ticket mentions service issues, also check region status.
+    """
 
 
 def get_json_schema_prompt() -> str:
@@ -293,7 +293,7 @@ def get_json_schema_prompt() -> str:
         str: JSON schema reminder text.
     """
     return """
-Your response MUST be a valid JSON object. Do not include any text before or after the JSON.
-Do not wrap the JSON in markdown code blocks.
-Ensure all required fields are present and have valid values.
-"""
+    Your response MUST be a valid JSON object. Do not include any text before or after the JSON.
+    Do not wrap the JSON in markdown code blocks.
+    Ensure all required fields are present and have valid values.
+    """

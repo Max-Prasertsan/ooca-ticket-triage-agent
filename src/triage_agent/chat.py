@@ -234,7 +234,7 @@ def get_ticket_quick() -> Optional[SupportTicket]:
         customer_tier = Prompt.ask(
             "Customer Tier",
             choices=["free", "pro", "enterprise"],
-            default="pro"
+            default="free"
         )
         
         return SupportTicket(

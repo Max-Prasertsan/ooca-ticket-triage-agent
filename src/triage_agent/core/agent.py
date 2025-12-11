@@ -250,26 +250,26 @@ class TriageAgent:
         
         return f"""Please triage the following support ticket:
 
----
-TICKET ID: {ticket.ticket_id}
-SUBJECT: {ticket.subject}
-CUSTOMER EMAIL: {ticket.customer_email}
-CUSTOMER NAME: {ticket.customer_name or 'Not provided'}
-CUSTOMER TIER: {ticket.customer_tier}
-CUSTOMER REGION: {ticket.customer_region or 'Not specified'}
-CHANNEL: {ticket.channel}
-TIMESTAMP: {ticket.timestamp or 'Not provided'}
+        ---
+        TICKET ID: {ticket.ticket_id}
+        SUBJECT: {ticket.subject}
+        CUSTOMER EMAIL: {ticket.customer_email}
+        CUSTOMER NAME: {ticket.customer_name or 'Not provided'}
+        CUSTOMER TIER: {ticket.customer_tier}
+        CUSTOMER REGION: {ticket.customer_region or 'Not specified'}
+        CHANNEL: {ticket.channel}
+        TIMESTAMP: {ticket.timestamp or 'Not provided'}
 
-TICKET BODY:
-{ticket.body}
----
+        TICKET BODY:
+        {ticket.body}
+        ---
 
-{tool_reminder}
+        {tool_reminder}
 
-After using the tools, provide your final triage assessment.
+        After using the tools, provide your final triage assessment.
 
-{json_reminder}
-"""
+        {json_reminder}
+        """
     
     def _parse_llm_response(
         self,
