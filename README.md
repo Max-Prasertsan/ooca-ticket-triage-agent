@@ -12,10 +12,27 @@ This system leverages OpenAI's GPT models to intelligently process incoming supp
 - **Intelligent Routing**: Determines optimal next action (auto-respond, route to specialist, or escalate)
 - **Risk Detection**: Identifies churn risk, dispute potential, and other customer risk signals
 
+## Quick Start
+
+```bash
+# 1. Setup
+cd ooca-ticket-triage-agent
+python -m venv venv
+source venv/bin/activate  # Windows: .\venv\Scripts\activate
+pip install -r requirements.txt
+
+# 2. Configure (optional - works without API key using rule-based fallback)
+echo "OPENAI_API_KEY=sk-your-key-here" > .env
+
+# 3. Run interactive chat
+python -m src.triage_agent.chat
+```
+
 ## Architecture Summary
 
 ```
 ooca-ticket-triage-agent/
+├── .env                  # Environment variables (create this)
 ├── src/triage_agent/
 │   ├── models/           # Pydantic data models
 │   │   ├── ticket.py     # Input ticket schema
@@ -28,12 +45,12 @@ ooca-ticket-triage-agent/
 │   │   └── region_status.py
 │   ├── core/             # Agent logic
 │   │   ├── agent.py      # Main agent orchestrator
-│   │   ├── classifier.py # Classification utilities
 │   │   └── triage_logic.py  # Decision logic
 │   ├── prompts/          # System prompts
 │   │   └── system_prompt.py
 │   ├── config.py         # Configuration management
-│   ├── runner.py         # CLI entry point
+│   ├── runner.py         # Batch CLI runner
+│   ├── chat.py           # Interactive terminal chat
 │   └── knowledge_base_data.py  # Mock KB data
 └── tests/
     └── test_sample_tickets.py
@@ -58,7 +75,7 @@ ooca-ticket-triage-agent/
 
 ```bash
 # Clone or download the repository
-cd ooca-ticket-triage-agent
+cd support-triage-agent
 
 # Create virtual environment
 python -m venv venv
@@ -75,38 +92,84 @@ pip install -r requirements.txt
 
 ### Environment Configuration
 
-Set your OpenAI API key as an environment variable:
+Create a `.env` file in the project root:
 
 ```bash
-# On macOS/Linux:
-export OPENAI_API_KEY="your-api-key-here"
+# Required for AI-powered triage (optional - falls back to rules without it)
+OPENAI_API_KEY=sk-your-api-key-here
 
-# On Windows (PowerShell):
-$env:OPENAI_API_KEY="your-api-key-here"
-
-# On Windows (CMD):
-set OPENAI_API_KEY=your-api-key-here
+# Optional settings
+OPENAI_MODEL=gpt-4o
+OPENAI_TEMPERATURE=0.1
+LOG_LEVEL=INFO
+MAX_RETRIES=3
 ```
 
-Alternatively, create a `.env` file in the project root:
+Get your OpenAI API key at: https://platform.openai.com/api-keys
 
-```env
-OPENAI_API_KEY=your-api-key-here
-```
+> **Note**: The agent works without an API key using rule-based fallback, but AI-powered triage provides better results.
 
-## Running the Agent
+## Usage
 
-### Process Sample Tickets
+### Interactive Chat (Recommended)
+
+The easiest way to interact with the agent:
 
 ```bash
-# From project root
+python -m src.triage_agent.chat
+```
+
+**Available Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `new` | Create ticket with full details |
+| `quick` | Fast entry (subject + body + tier) |
+| `sample` | Pick from sample tickets |
+| `json` | Paste a JSON ticket |
+| `help` | Show help |
+| `quit` | Exit |
+
+**Example Session:**
+
+```
+> quick
+
+⚡ Quick Ticket Entry
+
+Subject: Cannot login to my account
+Body: I've been locked out for 2 hours. Password reset emails not arriving.
+
+Customer Tier [free/pro/enterprise]: enterprise
+
+⏳ Processing ticket...
+
+╭──────────────────────────────────────────────────╮
+│                 📋 Triage Result                 │
+├─────────────────────────┬────────────────────────┤
+│ Urgency                 │ CRITICAL               │
+│ Issue Type              │ account                │
+│ Recommended Action      │ escalate_to_human      │
+│ Specialist Queue        │ enterprise_success     │
+╰─────────────────────────┴────────────────────────╯
+```
+
+### Batch Processing
+
+Process multiple tickets from a file:
+
+```bash
+# Process sample tickets
 python -m src.triage_agent.runner
 
-# Or with specific ticket file
+# Process from JSON file
 python -m src.triage_agent.runner --input tickets.json
 
-# Output to file
+# Output results to file
 python -m src.triage_agent.runner --output results.json
+
+# Quiet mode (JSON only)
+python -m src.triage_agent.runner --quiet > results.json
 ```
 
 ### Programmatic Usage
@@ -132,6 +195,14 @@ ticket = SupportTicket(
 
 # Process ticket
 result = agent.triage(ticket)
+
+# Access results
+print(f"Urgency: {result.urgency.value}")
+print(f"Action: {result.recommended_action.value}")
+print(f"Queue: {result.recommended_specialist_queue.value}")
+print(f"Risk Signals: {[s.value for s in result.customer_risk_signals]}")
+
+# Get full JSON
 print(result.model_dump_json(indent=2))
 ```
 
@@ -214,10 +285,28 @@ pytest tests/test_sample_tickets.py -v
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI API key | Required |
+| `OPENAI_API_KEY` | OpenAI API key | (empty - uses rule-based fallback) |
 | `OPENAI_MODEL` | Model to use | `gpt-4o` |
+| `OPENAI_TEMPERATURE` | Response temperature (0-2) | `0.1` |
 | `LOG_LEVEL` | Logging verbosity | `INFO` |
 | `MAX_RETRIES` | API retry attempts | `3` |
+| `TIMEOUT_SECONDS` | Request timeout | `30` |
+
+### Feature Flags
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLE_KNOWLEDGE_BASE` | Enable KB search tool | `true` |
+| `ENABLE_CUSTOMER_HISTORY` | Enable customer lookup | `true` |
+| `ENABLE_REGION_STATUS` | Enable region status | `true` |
+
+## Security Notes
+
+**Important:** Never commit your `.env` file! Add it to `.gitignore`:
+
+```bash
+echo ".env" >> .gitignore
+```
 
 ## License
 
