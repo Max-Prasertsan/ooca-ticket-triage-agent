@@ -23,6 +23,7 @@ pip install -r requirements.txt
 
 # 2. Configure (optional - works without API key using rule-based fallback)
 echo "OPENAI_API_KEY=sk-your-key-here" > .env
+# or use the example.env provided.
 
 # 3. Run interactive chat
 python -m src.triage_agent.chat
