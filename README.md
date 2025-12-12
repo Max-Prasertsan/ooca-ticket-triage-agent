@@ -13,7 +13,7 @@ This system leverages OpenAI's GPT models with integrated tooling to intelligent
 - **Knowledge Base Search**: Retrieves relevant documentation and solutions
 - **Customer Context**: Looks up customer history, tier, and account value
 - **Intelligent Routing**: Routes to auto-respond, specialist, or human escalation
-- **MCP Integration**: Connects to Slack, Jira, and PagerDuty for enterprise workflows
+- **MCP Integration (Mockup)**: Connects to Slack, Jira, and PagerDuty for enterprise workflows
 
 ## Quick Start
 
