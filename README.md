@@ -280,6 +280,7 @@ class IssueType(str, Enum):
 
 ## License
 
-MIT License - See LICENSE file for details.
-
+© 2025 Pakkaphon Prasertsan. All rights reserved.
+This repository was created solely for evaluation purposes as part of a job interview with OOCA.
+No permission is granted for reuse, modification, or redistribution.
 ---
