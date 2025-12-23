@@ -134,9 +134,18 @@ def load_tickets_from_file(filepath: str) -> list[SupportTicket]:
     with open(filepath, "r") as f:
         data = json.load(f)
     
+    # Handle different input formats:
+    # 1. List of tickets: [{"ticket_id": ...}, {"ticket_id": ...}]
+    # 2. Single ticket: {"ticket_id": ...}
+    # 3. Batch format: {"batch_id": ..., "tickets": [...]}
     if isinstance(data, list):
+        # Format 1: Direct list of tickets
         return [SupportTicket.model_validate(t) for t in data]
+    elif "tickets" in data:
+        # Format 3: Batch format with nested tickets array
+        return [SupportTicket.model_validate(t) for t in data["tickets"]]
     else:
+        # Format 2: Single ticket object
         return [SupportTicket.model_validate(data)]
 
 
